@@ -1,66 +1,69 @@
-import 'dart:async';
-import 'dart:convert';
+
 
 import 'package:flutter/material.dart';
-// ignore: uri_does_not_exist
-import 'package:http/http.dart' as http;
 
-Future<Post> fetchPost() async {
-  final response =
-  await http.get('https://jsonplaceholder.typicode.com/posts/1');
-  final responseJson = json.decode(response.body);
-
-  return new Post.fromJson(responseJson);
+void main() {
+  runApp(new FriendlychatApp());
 }
 
-class Post {
-  final int userId;
-  final int id;
-  final String title;
-  final String body;
-
-  Post({this.userId, this.id, this.title, this.body});
-
-  factory Post.fromJson(Map<String, dynamic> json) {
-    return new Post(
-      userId: json['userId'],
-      id: json['id'],
-      title: json['title'],
-      body: json['body'],
-    );
-  }
-}
-
-void main() => runApp(new MyApp());
-
-class MyApp extends StatelessWidget {
+class FriendlychatApp extends StatelessWidget{
   @override
   Widget build(BuildContext context) {
+    // TODO: implement build
     return new MaterialApp(
-      title: 'Fetch Data Example',
-      theme: new ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: new Scaffold(
-        appBar: new AppBar(
-          title: new Text('Fetch Data Example'),
-        ),
-        body: new Center(
-          child: new FutureBuilder<Post>(
-            future: fetchPost(),
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                return new Text(snapshot.data.body);
-              } else if (snapshot.hasError) {
-                return new Text("${snapshot.error}");
-              }
-
-              // By default, show a loading spinner
-              return new CircularProgressIndicator();
-            },
-          ),
-        ),
-      ),
+      title: "Chatting Room",
+      home: new ChatScreen(),
     );
   }
+
 }
+
+// Modify the ChatScreen class definition to extend StatefulWidget.
+
+class ChatScreen extends StatefulWidget {                     //modified
+  @override                                                        //new
+  State createState() => new ChatScreenState();                    //new
+}
+
+// Add the ChatScreenState class definition in main.dart.
+
+class ChatScreenState extends State<ChatScreen> {
+  final TextEditingController _textController = new TextEditingController(); //new//new
+  @override                                                        //new
+  Widget build(BuildContext context) {
+    return new Scaffold(
+      appBar: new AppBar(title: new Text("Friendlychat")),
+      body: _buildTextComposer(),
+    );
+  }
+  Widget _buildTextComposer(){
+    return new Container(
+      margin: const EdgeInsets.symmetric(horizontal: 8.0),
+      child: new Row(
+        children: <Widget>[
+          new Flexible(
+            child: new TextField(
+              controller: _textController,
+              onSubmitted: _handleSubmitted,
+              decoration: new InputDecoration.collapsed(
+                  hintText: "Send a message"),
+            ),
+          ),
+          new Container(
+            margin: new EdgeInsets.symmetric(horizontal: 4.0),
+            child: new IconButton(
+                icon:new Icon(Icons.send),
+                onPressed: ()=> _handleSubmitted(_textController.text),
+            ),
+          ),
+        ],
+      )
+    );
+  }
+  void _handleSubmitted(String text) {
+    _textController.clear();
+  }
+}
+
+
+
