@@ -1,37 +1,66 @@
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+// ignore: uri_does_not_exist
+import 'package:http/http.dart' as http;
 
-void main()=>runApp(new MyApp());
+Future<Post> fetchPost() async {
+  final response =
+  await http.get('https://jsonplaceholder.typicode.com/posts/1');
+  final responseJson = json.decode(response.body);
 
-class MyApp extends StatelessWidget{
+  return new Post.fromJson(responseJson);
+}
+
+class Post {
+  final int userId;
+  final int id;
+  final String title;
+  final String body;
+
+  Post({this.userId, this.id, this.title, this.body});
+
+  factory Post.fromJson(Map<String, dynamic> json) {
+    return new Post(
+      userId: json['userId'],
+      id: json['id'],
+      title: json['title'],
+      body: json['body'],
+    );
+  }
+}
+
+void main() => runApp(new MyApp());
+
+class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
-    final title = 'Basic List';
-    
     return new MaterialApp(
-      title:title,
+      title: 'Fetch Data Example',
+      theme: new ThemeData(
+        primarySwatch: Colors.blue,
+      ),
       home: new Scaffold(
         appBar: new AppBar(
-          title: new Text(title),
+          title: new Text('Fetch Data Example'),
         ),
-        body: new ListView(
-        children: <Widget>[
-        new ListTile(
-        leading: new Icon(Icons.map),
-        title: new Text('Map'),
-        ),
-        new ListTile(
-        leading: new Icon(Icons.photo),
-        title: new Text('Album'),
-        ),
-        new ListTile(
-        leading: new Icon(Icons.phone),
-        title: new Text('Phone'),
-        ),
-        ],
+        body: new Center(
+          child: new FutureBuilder<Post>(
+            future: fetchPost(),
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                return new Text(snapshot.data.body);
+              } else if (snapshot.hasError) {
+                return new Text("${snapshot.error}");
+              }
+
+              // By default, show a loading spinner
+              return new CircularProgressIndicator();
+            },
+          ),
         ),
       ),
     );
   }
-  
 }
