@@ -11,7 +11,7 @@ class FriendlychatApp extends StatelessWidget{
   Widget build(BuildContext context) {
     // TODO: implement build
     return new MaterialApp(
-      title: "Chatting Room",
+      title: "FamilyChat",
       home: new ChatScreen(),
     );
   }
@@ -29,11 +29,12 @@ class ChatScreen extends StatefulWidget {                     //modified
 
 class ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   final List<ChatMessage> _messages = <ChatMessage>[];             // new
-  final TextEditingController _textController = new TextEditingController(); //new//new
+  final TextEditingController _textController = new TextEditingController(); //new
+  bool _isComposing = false;                                      //new
   @override                                                        //new
   Widget build(BuildContext context) {
     return new Scaffold(
-      appBar: new AppBar(title: new Text("Friendlychat")),
+      appBar: new AppBar(title: new Text("FamilyChat")),
       body: new Column(                                        //modified
         children: <Widget>[                                         //new
           new Flexible(                                             //new
@@ -68,6 +69,11 @@ class ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
           new Flexible(
             child: new TextField(
               controller: _textController,
+              onChanged: (String text) {          //new
+                setState(() {                     //new
+                  _isComposing = text.length > 0; //new
+                });                               //new
+              },                                  //new
               onSubmitted: _handleSubmitted,
               decoration: new InputDecoration.collapsed(
                   hintText: "Send a message"),
@@ -77,7 +83,9 @@ class ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
             margin: new EdgeInsets.symmetric(horizontal: 4.0),
             child: new IconButton(
                 icon:new Icon(Icons.send),
-                onPressed: ()=> _handleSubmitted(_textController.text),
+                onPressed: _isComposing
+                    ? () => _handleSubmitted(_textController.text)    //modified
+                    : null,                                           //modified
             ),
           ),
         ],
@@ -87,6 +95,9 @@ class ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
 
   void _handleSubmitted(String text) {
     _textController.clear();
+    setState(() {                                                    //new
+      _isComposing = false;                                          //new
+    });                                                              //new
     ChatMessage message = new ChatMessage(                         //new
       text: text,                                                  //new
       animationController: new AnimationController(
